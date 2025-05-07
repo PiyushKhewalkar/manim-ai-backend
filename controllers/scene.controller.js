@@ -6,7 +6,7 @@ import fs from 'fs';
 
 //utils
 import generateSceneAnimation from "../utils/manim.js";
-import generateSceneCode from "../utils/ai.js";
+import {generateSceneCode, regenerateSceneCode} from "../utils/ai.js";
 import uploadToS3 from "../utils/s3.js";
 
 export const getScenes = async(req, res) => {
@@ -94,7 +94,7 @@ export const generateScene = async(req, res) => {
 
         newScene.chatHistory.push({
             user : userPrompt,
-            assistant : sceneConfig.message,
+            assistant : sceneConfig.assistantMessage,
             code : sceneConfig.code,
             filePath : s3Url
         })
@@ -104,6 +104,57 @@ export const generateScene = async(req, res) => {
         // return the path
 
         return res.status(201).json({message : "Scene created succesfully", newScene, fileUrl: s3Url})
+        
+    } catch (error) {
+        return res.status(500).json({message: "Internal server error", details: error.message})
+    }
+}
+
+export const regenerateScene = async(req, res) => {
+    try {
+
+        const { id } = req.params
+
+        const { userPrompt } = req.body
+
+        if (!userPrompt || typeof userPrompt !== 'string') {
+            return res.status(400).json({ message: "Invalid or missing userPrompt" });
+        }
+
+        const foundScene = await Scene.findById(id)
+
+        if (!foundScene) return res.status(404).json({message : "scene not found"})
+
+        const regeneratedSceneConfig = await regenerateSceneCode(userPrompt, foundScene.chatHistory)
+
+        const pythonCode = regeneratedSceneConfig.code.replace(/\\n/g, '\n');
+
+         // 🎬 Generate video using manim
+         const localVideoPath = await generateSceneAnimation(pythonCode);
+         console.log("🎥 Local video path:", localVideoPath);
+ 
+         // 🗂 Extract filename for S3
+         const fileName = path.basename(localVideoPath); // e.g., Scene_12345.mp4
+         const s3Key = `videos/${Date.now()}_${fileName}.mp4`;
+         const s3Url = await uploadToS3(localVideoPath, s3Key);
+         console.log("Uploaded to S3:", s3Url);
+
+
+         // 🗑 Optionally delete local file
+         fs.unlinkSync(localVideoPath);
+
+        // save into database
+
+         foundScene.chatHistory.push({
+           user : userPrompt,
+           assistant : regeneratedSceneConfig.assistantMessage,
+           code : regeneratedSceneConfig.code,
+           filePath : s3Url
+         })
+
+         await foundScene.save()
+
+         return res.status(200).json({message : "scene regenerated succesfully", foundScene, fileUrl : s3Url})
         
     } catch (error) {
         return res.status(500).json({message: "Internal server error", details: error.message})
