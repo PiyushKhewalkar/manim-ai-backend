@@ -1,0 +1,11 @@
+# Dependency directory
+node_modules/
+
+# Scene files
+scenes/
+
+# Media assets
+media/
+
+# Env-specific local config files
+.env.*.local
