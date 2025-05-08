@@ -4,6 +4,10 @@ import re
 import subprocess
 from pathlib import Path
 
+import manim
+
+print(manim.__version__)
+
 # Path to the directory where your scenes are saved
 scenes_dir = Path(os.path.join(os.getcwd(), "scenes"))
 

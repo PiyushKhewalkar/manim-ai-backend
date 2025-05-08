@@ -3,6 +3,9 @@ import express from "express"
 // routes
 import sceneRouter from "./routes/scenes.routes.js";
 
+// cors
+import cors from "cors"
+
 
 // database
 import connectToDatabase from './database/mongodb.js';
@@ -13,6 +16,8 @@ import { PORT } from './config/env.js';
 const app = express();
 
 app.use(express.json());
+
+app.use(cors())
 
 app.use("/scene",sceneRouter)
 
