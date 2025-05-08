@@ -46,7 +46,7 @@ RUN npm install
 COPY . .
 
 # ✅ Create necessary folders
-RUN mkdir -p /app/media/videos /app/scenes
+RUN mkdir -p /media/videos /scenes
 
 # ✅ Expose the port your server runs on
 EXPOSE 3000
