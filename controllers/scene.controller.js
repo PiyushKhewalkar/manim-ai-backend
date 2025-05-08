@@ -99,7 +99,7 @@ export const generateScene = async(req, res) => {
             filePath : s3Url
         })
 
-        await newScene.save(); // <-- This is missing
+        await newScene.save(); 
 
         // return the path
 

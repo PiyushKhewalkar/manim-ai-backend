@@ -1,5 +1,0 @@
-manim
-ffmpeg
-Pillow
-numpy
-boto3
