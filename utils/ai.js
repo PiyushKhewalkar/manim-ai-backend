@@ -41,6 +41,7 @@ Instructions:
 - Keep animations **very simple** (e.g., fade in/out, move, write)
 - Do **not** include markdown formatting or explanations
 - Wrap the final code output in double quotes ("...")
+- Write your message in the "assistantMessage" key
 
 Output Format:
 Animation Name: PascalCaseName  
@@ -91,6 +92,7 @@ export const regenerateSceneCode = async(userPrompt, chatHistory) => {
     10. Inside the \`construct()\` method, include working Manim code
     11. Escape newlines using \\\\n and use 4-space indentation.
     12. Do **not** include markdown formatting, code fencing, or explanations.
+    13. Write your message in the "assistantMessage" key
 
     Last animations created:
     ${getLastMessages(3)}
