@@ -7,6 +7,9 @@ const sceneSchema = new mongoose.Schema({
     description : {
         type : String
     },
+    videoId : {
+        type : String
+    },
     chatHistory : [{
         user : {
             type : String

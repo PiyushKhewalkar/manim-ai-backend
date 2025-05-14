@@ -2,6 +2,7 @@ import express from "express"
 
 // routes
 import sceneRouter from "./routes/scenes.routes.js";
+import videoRouter from "./routes/videos.routes.js";
 
 // cors
 import cors from "cors"
@@ -19,7 +20,8 @@ app.use(express.json());
 
 app.use(cors())
 
-app.use("/scene",sceneRouter)
+app.use("/scene", sceneRouter)
+app.use("/video", videoRouter)
 
 app.get("/", (req, res) => {
   res.json({"message" : "Home"})

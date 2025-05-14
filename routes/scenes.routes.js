@@ -3,13 +3,13 @@ import { getScenes, getScene, generateScene, regenerateScene, deleteScene } from
 
 const sceneRouter = Router()
 
-sceneRouter.get("/", getScenes) // get all scenes
+sceneRouter.get("/:videoId", getScenes) // get all scenes of a video
 
-sceneRouter.get("/:id", getScene) // get scene
+sceneRouter.get("/:id", getScene) // get a scene
 
-sceneRouter.post("/generate", generateScene) // Generate Scene
+sceneRouter.post("/generate/:videoId", generateScene) // Generate Scene
 
-sceneRouter.put("/regenerate/:id", regenerateScene) // regenerate Scene
+sceneRouter.post("/regenerate/:id/:videoId", regenerateScene) // regenerate Scene
 
 sceneRouter.delete("/:id", deleteScene) // delete scene
 
