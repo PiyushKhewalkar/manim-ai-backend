@@ -9,7 +9,7 @@ videoRouter.get("/:id", getVideo) // get video
 
 videoRouter.post("/launch", launchVideo) // launch video
 
-videoRouter.get("/produce/:id", produceVideo) // produce video
+videoRouter.get("/produce/:id", produceVideo) // produce video - Combines clips and exports the video
 
 videoRouter.delete("/:id", deleteVideo) // delete video
 

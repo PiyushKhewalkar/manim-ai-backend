@@ -38,7 +38,7 @@ export const getScene = async(req, res) => {
         return res.status(200).json({scene})
         
     } catch (error) {
-        return res.status(500).json({message: "Internal server error", details: error.message})
+        return res.status(500).json({message: "Internalll server error", details: error.message})
     }
 }
 
@@ -48,9 +48,9 @@ export const deleteScene = async(req, res) => {
 
         const {id} = req.params
 
-        const scenes = await Scene.findByIdAndDelete(id)
+        const scene = await Scene.findByIdAndDelete(id)
 
-        return res.status(200).json({message: "Scene deleted succesfully", scenes})
+        return res.status(200).json({message: "Scene deleted succesfully", scene})
         
     } catch (error) {
         return res.status(500).json({message: "Internal server error", details: error.message})

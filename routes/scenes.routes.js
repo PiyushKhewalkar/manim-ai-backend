@@ -3,7 +3,7 @@ import { getScenes, getScene, generateScene, regenerateScene, deleteScene } from
 
 const sceneRouter = Router()
 
-sceneRouter.get("/:videoId", getScenes) // get all scenes of a video
+sceneRouter.get("/video/:videoId", getScenes) // get all scenes of a video
 
 sceneRouter.get("/:id", getScene) // get a scene
 
