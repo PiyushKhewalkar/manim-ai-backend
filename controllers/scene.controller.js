@@ -38,7 +38,7 @@ export const getScene = async(req, res) => {
         return res.status(200).json({scene})
         
     } catch (error) {
-        return res.status(500).json({message: "Internalll server error", details: error.message})
+        return res.status(500).json({message: "Internal server error", details: error.message})
     }
 }
 
