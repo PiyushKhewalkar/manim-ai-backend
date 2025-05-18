@@ -70,6 +70,8 @@ export const iteratePlan = async (req, res) => {
       { new: true }
     );
 
+    await updatedPlan.save()
+
     return res.status(200).json({ message: "Plan updated", data: updatedPlan });
 
   } catch (error) {
@@ -85,6 +87,18 @@ export const planToVideo = async(req, res) => {
         const {videoId} = req.body
 
         const plan = await Plan.findById(id)
+
+        plan.scenes.forEach((scene) => {
+            // generate code
+
+            // generate Manim animation
+
+            // upload to s3
+
+            // save to Scene db
+        })
+
+        
 
         
     } catch (error) {
