@@ -8,7 +8,7 @@ const sceneSchema = new mongoose.Schema({
   concept: {
     type: String,
     required: true,
-  },
+  }
 });
 
 const planSchema = new mongoose.Schema({
@@ -20,15 +20,19 @@ const planSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  userPrompt : {
+  userPrompt: {
     type: String,
-    required: true
+    required: true,
   },
-  scenes: [sceneSchema],
+  scenes: {
+    type: [sceneSchema],
+    required: true,
+    default: [],
+  }
 }, {
   timestamps: true
 });
 
-const Plan = mongoose.model("Plan", planSchema)
+const Plan = mongoose.model("Plan", planSchema);
 
-export default Plan
+export default Plan;

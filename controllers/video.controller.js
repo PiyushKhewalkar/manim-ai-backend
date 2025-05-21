@@ -56,6 +56,8 @@ export const launchVideo = async(req, res) => {
             name : name
         })
 
+        await newVideo.save()
+
         return res.status(201).json({message : "Video launched succesfully", newVideo})
         
     } catch (error) {

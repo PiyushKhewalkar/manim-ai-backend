@@ -1,6 +1,7 @@
 import Scene from "../models/scene.model.js";
 import Video from "../models/video.model.js";
 
+
 import path from 'path';
 import fs from 'fs';
 
@@ -9,6 +10,7 @@ import fs from 'fs';
 import generateSceneAnimation from "../utils/manim.js";
 import {generateSceneCode, regenerateSceneCode} from "../utils/ai.js";
 import uploadToS3 from "../utils/s3.js";
+import cleanCode from "../utils/cleanCode.js";
 
 export const getScenes = async(req, res) => {
     try {
@@ -83,7 +85,9 @@ export const generateScene = async(req, res) => {
             return res.status(500).json({ message: "AI scene generation failed or incomplete response" });
           }          
 
-        const pythonCode = sceneConfig.code.replace(/\\n/g, '\n');
+        let pythonCode = sceneConfig.code.replace(/\\n/g, '\n');
+
+        pythonCode = cleanCode(pythonCode)
 
         console.log(pythonCode);
 
@@ -157,7 +161,9 @@ export const regenerateScene = async (req, res) => {
         const order = foundScene.order;
 
         const regeneratedSceneConfig = await regenerateSceneCode(userPrompt, foundScene.chatHistory);
-        const pythonCode = regeneratedSceneConfig.code.replace(/\\n/g, '\n');
+        let pythonCode = regeneratedSceneConfig.code.replace(/\\n/g, '\n');
+
+        pythonCode = cleanCode(pythonCode)
 
         let localVideoPath;
         let s3Url; // ✅ Declare it here so it's accessible later

@@ -19,6 +19,26 @@ const ReAnimation = z.object({
   assistantMessage : z.string()
 })
 
+const PlanZ = z.object({
+  scenes : z.array(
+    z.object({
+      order: z.number(),
+      concept: z.string(),
+    })
+  )
+})
+
+const SceneValidator = z.object({
+  status: z.boolean(),
+  message: z.string()
+})
+
+const improvedSceneCode = z.object({
+  code: z.string()
+})
+
+
+
 export const generateSceneCode = async(userPrompt) => {
     const response = await openai.responses.parse({
         model: "gpt-4o-mini",
@@ -127,4 +147,159 @@ export const regenerateSceneCode = async(userPrompt, chatHistory) => {
   const scene = response.output_parsed;
 
   return scene;
+}
+
+export const generatePlan = async(userPrompt) => {
+  const response = await openai.responses.parse({
+      model: "gpt-4o-mini",
+      input: [
+        { role: "system", content: `
+You are an AI assistant that breaks down a topic into a sequence of visual animation scenes.
+
+The animations will be built using **Manim**, so please keep its capabilities in mind — including text, shapes, camera movements, and animations like FadeIn, Write, GrowFromCenter, Transform, etc.
+
+Your job is to return a JSON array of scenes, where each item contains:
+- "order" (as a number)
+- "concept" (a very specific, short instruction for what to draw and animate in that scene)
+
+Focus on:
+- What elements should be shown (heading, paragraph, label, shapes, icons)
+- What animation should be used (e.g., Write, FadeIn, Transform)
+- How to visually place them (top, center, left, etc.)
+- Keeping it simple enough to animate using Manim's core features
+
+Avoid vague terms like “this” or “that”. Be precise and direct in your wording.
+
+Make it sound conversational and educational, like explaining a concept to a curious learner.
+
+Here are a few examples of the **concept** values:
+
+1. "Draw the heading 'Newton's First Law' at the top using Write animation. Below it, display a still apple resting on a table with a subtle GrowFromCenter effect."
+2. "Show an arrow pointing to the right labeled 'Force'. Then draw a box that moves in the same direction to demonstrate motion. Use Transform animation for the box's movement."
+3. "Introduce the word 'Inertia' in bold at the center of the screen. Fade it in slowly while a simple icon of a sleeping cat appears in the corner to symbolize stillness."
+
+Now based on the following topic, break it into such scenes.
+
+Topic: "${userPrompt}"
+
+Only return the array.
+`
+},
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      text: {
+        format: zodTextFormat(PlanZ, "animationPlan"),
+      },
+    });
+
+    const plan = response.output_parsed;
+    
+    console.log(plan)
+
+    return plan
+}
+
+export const validateScene = async(userPrompt, code) => {
+  const response = await openai.responses.parse({
+      model: "gpt-4o-mini",
+      input: [
+        { role: "system", content: `You are an AI code reviewer that validates whether a piece of Manim animation code accurately implements the visual scene described in a user's prompt.
+
+You will receive:
+- A **userPrompt**: A natural language description of the animation scene the user wants.
+- A **code**: Python code written using the Manim library.
+
+Your task is to check if the code:
+- Matches the described elements (text, shapes, labels, icons, etc.)
+- Uses correct and relevant Manim animations (e.g., Write, FadeIn, Transform)
+- Places elements as per the described positions (e.g., center, top-left, etc.)
+- Is logically complete (i.e., doesn't miss key elements mentioned in the userPrompt)
+- Does not contain unrelated or extra elements that weren’t asked for
+
+Respond in this format:
+{
+  "status": true | false, // true if the code fulfills the userPrompt accurately
+  "message": "Explain briefly why it’s correct or what’s missing/wrong."
+}
+
+code: ${code}
+
+userPromp: ${userPrompt}
+
+Keep your evaluation strict but constructive. Only return the JSON object.
+`},
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      text: {
+        format: zodTextFormat(SceneValidator, "sceneValidator"),
+      },
+    });
+
+    const result = response.output_parsed;
+    
+    console.log(result)
+
+    return result
+}
+
+export const improveSceneCode = async (existingCode, improvement, userPrompt) => {
+  const response = await openai.responses.parse({
+    model: "gpt-4o-mini",
+    input: [
+      {
+        role: "system",
+        content: `
+You are an expert Manim code editor.
+
+Your job is to improve existing Manim Python code based on:
+- The original scene description (userPrompt)
+- The improvement instruction (what's missing or should be changed)
+
+You must:
+- Only modify what's necessary to fulfill the improvement
+- Make the code cleaner and logically correct
+- Use appropriate Manim animations (e.g., Write, FadeIn, Transform)
+- Ensure all visual elements mentioned in the userPrompt are implemented
+- Avoid removing parts of the original code that are still valid
+
+Return the improved Python code as a single string.
+
+Respond ONLY with a valid JSON object:
+{
+  "code": "..." // improved and corrected Manim Python code
+}
+        `
+      },
+      {
+        role: "user",
+        content: `
+Existing Code:
+\`\`\`python
+${existingCode}
+\`\`\`
+
+Improvement Suggestion:
+"${improvement}"
+
+Original Scene Description:
+"${userPrompt}"
+        `
+      }
+    ],
+    text: {
+      format: zodTextFormat(improvedSceneCode, "improvedSceneCode"),
+    }
+  });
+
+  const result = response.output_parsed;
+
+  console.log(result);
+
+  return result;
 }
